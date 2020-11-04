@@ -23,16 +23,25 @@ void SimpleShapeApplication::init() {
         std::cerr << std::string(PROJECT_DIR) + "/shaders/base_fs.glsl" << " shader files" << std::endl;
     }
 
-    std::vector<GLfloat> vertices = {
+
+
+    std::vector<GLfloat> domek = {
+            0.0f, 0.5f, 0.0f,
             -0.5f, 0.0f, 0.0f,
             0.5f, 0.0f, 0.0f,
-            0.0f, 0.5f, 0.0f
+            -0.5f, 0.0f, 0.0f,
+            0.5f, 0.0f, 0.0f,
+            -0.5f, -1.0f, 0.0f,
+            -0.5f, -1.0f, 0.0f,
+            0.5f, -1.0f, 0.0f,
+            0.5, 0.0f, 0.0f
     };
 
     GLuint v_buffer_handle;
     glGenBuffers(1, &v_buffer_handle);
     glBindBuffer(GL_ARRAY_BUFFER, v_buffer_handle);
-    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(GLfloat), vertices.data(), GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, domek.size() * sizeof(GLfloat), domek.data(), GL_STATIC_DRAW);
+    //glBufferData(GL_ARRAY_BUFFER, kwadrat.size() * sizeof(GLfloat), kwadrat.data(), GL_STATIC_DRAW);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 
@@ -56,6 +65,6 @@ void SimpleShapeApplication::init() {
 
 void SimpleShapeApplication::frame() {
     glBindVertexArray(vao_);
-    glDrawArrays(GL_TRIANGLES, 0, 3);
+    glDrawArrays(GL_TRIANGLES, 0, 9);
     glBindVertexArray(0);
 }
