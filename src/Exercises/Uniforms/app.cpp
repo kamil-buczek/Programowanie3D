@@ -81,7 +81,7 @@ void SimpleShapeApplication::init() {
     glGenBuffers(1,&ubo_handle);
     glBindBuffer(GL_UNIFORM_BUFFER, ubo_handle);
     float strength = 1.0;
-    float light[3] = {0.7, 0.8, 0.7};
+    float light[3] = {0.7, 0.8, 1.0};
     glBufferData(GL_UNIFORM_BUFFER, 8 * sizeof(float), nullptr, GL_STATIC_DRAW);
     glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(float), &strength);
     glBufferSubData(GL_UNIFORM_BUFFER, 4 * sizeof(float), 3 * sizeof(float), light);
