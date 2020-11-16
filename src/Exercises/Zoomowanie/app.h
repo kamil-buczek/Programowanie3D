@@ -33,6 +33,11 @@ public:
         }
     }
 
+    void scroll_callback(double xoffset, double yoffset) override {
+        Application::scroll_callback(xoffset, yoffset);
+        camera()->zoom(yoffset / 30.0f);
+    }
+
 private:
     GLuint vao_;
     GLuint u_pvm_buffer_;

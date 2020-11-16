@@ -21,6 +21,24 @@ public:
         aspect_ = aspect;
     }
 
+    float logistic(float y) {
+        return 1.0f/(1.0f+std::exp(-y));
+    }
+
+    float inverse_logistic(float x) {
+        return std::log(x/(1.0f-x));
+    }
+
+    void zoom(float y_offset) {
+
+        auto x = fov_/glm::pi<float>();
+        auto y = inverse_logistic(x);
+        y+=y_offset;
+        x = logistic(y);
+        fov_ = x*glm::pi<float>();
+    }
+
+
     glm::mat4 view() const { return V_; }
 
     glm::mat4 projection() const { return glm::perspective(fov_, aspect_, near_, far_); }
