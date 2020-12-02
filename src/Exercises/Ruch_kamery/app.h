@@ -11,6 +11,7 @@
 #include "Application/utils.h"
 #include "glad/glad.h"
 #include "camera.h"
+#include "camera_controler.h"
 
 class SimpleShapeApplication : public xe::Application {
 public:
@@ -21,12 +22,15 @@ public:
 
     void frame() override;
 
+    void mouse_button_callback(int button, int action, int mods) override;
+    void cursor_position_callback(double x, double y) override;
+
     void framebuffer_resize_callback(int w, int h) override;
 
     Camera *camera_;
 
     void set_camera(Camera *camera) { camera_ = camera; }
-    Camera *camera() { return camera_; }
+
     ~SimpleShapeApplication() {
         if (camera_) {
             delete camera_;
@@ -38,7 +42,13 @@ public:
         camera()->zoom(yoffset / 30.0f);
     }
 
+    void set_controler(CameraControler *controler) { controler_ = controler; }
+    Camera *camera() { return camera_; }
+
 private:
     GLuint vao_;
     GLuint u_pvm_buffer_;
+    //Ruch kamery---------------
+    CameraControler *controler_;
+    //--------------------------
 };

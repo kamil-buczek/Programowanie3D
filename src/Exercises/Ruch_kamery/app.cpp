@@ -59,24 +59,24 @@ void SimpleShapeApplication::init() {
 
             -0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f,
             0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f,
-            0.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f,
+            0.0f, 0.0f, 0.8f, 1.0f, 0.0f, 0.0f,
 
             0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f,
             0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f,
-            0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f,
+            0.0f, 0.0f, 0.8f, 0.0f, 1.0f, 0.0f,
 
             0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f,
             -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f,
-            0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f,
+            0.0f, 0.0f, 0.8f, 0.0f, 0.0f, 1.0f,
 
             -0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 1.0f,
             -0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 1.0f,
-            0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f,
+            0.0f, 0.0f, 0.8f, 0.0f, 1.0f, 1.0f,
     };
 
     //Bufor indeksów
     std::vector<GLushort> indices = {
-           2,1,0,1,2,3,6,5,4,9,8,7,12,11,10,15,14,13 // wypisujemy tyle elementów ile mamy wierzchołków
+            2,0,1,1,3,2,6,5,4,9,8,7,12,11,10,15,14,13 // wypisujemy tyle elementów ile mamy wierzchołków
             //4,5,6,7,8,9,10,11,12,13,14,15
     };
     GLuint idx_buffer_handle;
@@ -129,22 +129,20 @@ void SimpleShapeApplication::init() {
     //PVM----------------------------------------------------------------------------------------------------------
     glGenBuffers(1,&u_pvm_buffer_);
 
-
     int w, h;
     std::tie(w, h) = frame_buffer_size();
-
-    //camera_->perspective()
-    //fov_ = glm::pi<float>()/2.0;
-    //near_ = 1.0f;
-    //far_ = 10.0f;
-    //P_ = glm::perspective(fov_, aspect_, near_, far_);
-    //V_ = glm::lookAt(glm::vec3{-1.0,-1.0,1.0},glm::vec3{0.0f,0.0f,0.0f},glm::vec3{1.0,0.5,1.0});
 
     camera_->perspective(glm::pi<float>()/2.0,(float)w/(float)h,1.0f,10.0f);
     glm::mat4 P_ = camera_->projection();
     camera_->look_at(glm::vec3{-1.0,-1.0,1.0},glm::vec3{0.0f,0.0f,0.0f},glm::vec3{1.0,0.5,1.0});
     glm::mat4 V_ = camera_->view();
     glm::mat4 M(1.0f);
+
+    //Ruch kamery-----------------
+    set_controler(new CameraControler(camera()));
+    //---------------------------
+
+
 
     glBindBufferBase(GL_UNIFORM_BUFFER, 1, u_pvm_buffer_);
 
@@ -182,4 +180,27 @@ void SimpleShapeApplication::framebuffer_resize_callback(int w, int h) {
     //aspect_ = (float) w / h;
     camera_->set_aspect((float) w/h);
     glm::mat4 P_ = camera_->projection();
+}
+
+void SimpleShapeApplication::mouse_button_callback(int button, int action, int mods) {
+    Application::mouse_button_callback(button, action, mods);
+
+    if (controler_) {
+        double x, y;
+        glfwGetCursorPos(window_, &x, &y);
+
+        if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
+            controler_->LMB_pressed(x, y);
+
+        if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE)
+            controler_->LMB_released(x, y);
+    }
+
+}
+
+void SimpleShapeApplication::cursor_position_callback(double x, double y) {
+    Application::cursor_position_callback(x, y);
+    if (controler_) {
+        controler_->mouse_moved(x, y);
+    }
 }
