@@ -41,6 +41,14 @@ void SimpleShapeApplication::init() {
         std::cerr << std::string(PROJECT_DIR) + "/shaders/base_fs.glsl" << " shader files" << std::endl;
     }
 
+    //Zoomowanie-------------------------------------------------------------------------------------------------------
+
+    set_camera(new Camera);
+
+    //-----------------------------------------------------------------------------------------------------------------
+
+
+
     //Tablica wierzchołków i kolorów
     std::vector<GLfloat> domek = {
 
@@ -71,7 +79,6 @@ void SimpleShapeApplication::init() {
            2,1,0,1,2,3,6,5,4,9,8,7,12,11,10,15,14,13 // wypisujemy tyle elementów ile mamy wierzchołków
             //4,5,6,7,8,9,10,11,12,13,14,15
     };
-
     GLuint idx_buffer_handle;
     glGenBuffers(1,&idx_buffer_handle);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, idx_buffer_handle);
@@ -122,26 +129,24 @@ void SimpleShapeApplication::init() {
     //PVM----------------------------------------------------------------------------------------------------------
     glGenBuffers(1,&u_pvm_buffer_);
 
-    //---------------------------------------------------------------------------------------------
+
     int w, h;
     std::tie(w, h) = frame_buffer_size();
 
-    aspect_ = (float)w/(float)h;
-    fov_ = glm::pi<float>()/2.0;
-    near_ = 1.0f;
-    far_ = 10.0f;
+    //camera_->perspective()
+    //fov_ = glm::pi<float>()/2.0;
+    //near_ = 1.0f;
+    //far_ = 10.0f;
+    //P_ = glm::perspective(fov_, aspect_, near_, far_);
+    //V_ = glm::lookAt(glm::vec3{-1.0,-1.0,1.0},glm::vec3{0.0f,0.0f,0.0f},glm::vec3{1.0,0.5,1.0});
 
-    P_ = glm::perspective(fov_, aspect_, near_, far_);
-    V_ = glm::lookAt(glm::vec3{-1.0,-1.0,1.0},glm::vec3{0.0f,0.0f,0.0f},glm::vec3{1.0,0.5,1.0});
+    camera_->perspective(glm::pi<float>()/2.0,(float)w/(float)h,1.0f,10.0f);
+    glm::mat4 P_ = camera_->projection();
+    camera_->look_at(glm::vec3{-1.0,-1.0,1.0},glm::vec3{0.0f,0.0f,0.0f},glm::vec3{1.0,0.5,1.0});
+    glm::mat4 V_ = camera_->view();
     glm::mat4 M(1.0f);
 
-    //auto PVM = P_*V_;
-    //glBindBuffer(GL_UNIFORM_BUFFER, u_pvm_buffer_);
-    //glBufferData(GL_UNIFORM_BUFFER,sizeof(glm::mat4), nullptr, GL_STATIC_DRAW);
-    //glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), &PVM[0]);
-    //glBindBuffer(GL_UNIFORM_BUFFER, 0);
     glBindBufferBase(GL_UNIFORM_BUFFER, 1, u_pvm_buffer_);
-    //--------------------------------------------------------------------------------------------------------------
 
     glClearColor(0.81f, 0.81f, 0.8f, 1.0f);
     glViewport(0, 0, w, h);
@@ -155,6 +160,9 @@ void SimpleShapeApplication::init() {
 
 void SimpleShapeApplication::frame() {
 
+
+    glm::mat4 P_ = camera_->projection();
+    glm::mat4 V_ = camera_->view();
     auto PVM = P_*V_;
     glBindBuffer(GL_UNIFORM_BUFFER, u_pvm_buffer_);
     glBufferData(GL_UNIFORM_BUFFER,sizeof(glm::mat4), nullptr, GL_STATIC_DRAW);
@@ -171,6 +179,7 @@ void SimpleShapeApplication::frame() {
 void SimpleShapeApplication::framebuffer_resize_callback(int w, int h) {
     Application::framebuffer_resize_callback(w, h);
     glViewport(0,0,w,h);
-    aspect_ = (float) w / h;
-    P_ = glm::perspective(fov_, aspect_, near_, far_);
+    //aspect_ = (float) w / h;
+    camera_->set_aspect((float) w/h);
+    glm::mat4 P_ = camera_->projection();
 }
