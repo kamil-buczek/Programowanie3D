@@ -13,7 +13,6 @@ void SimpleShapeApplication::init() {
     auto program = xe::create_program(std::string(PROJECT_DIR) + "/shaders/base_vs.glsl",
                                       std::string(PROJECT_DIR) + "/shaders/base_fs.glsl");
 
-    //-----------------------------------------------------------------------------------------------------------------
     //PVM--------------------------------------------------------------------------------------------------------------
     auto u_transformations_index = glGetUniformBlockIndex(program, "Transformations");
     if (u_transformations_index == GL_INVALID_INDEX) {
@@ -22,87 +21,15 @@ void SimpleShapeApplication::init() {
         glUniformBlockBinding(program, u_transformations_index, 1);
     }
     //-----------------------------------------------------------------------------------------------------------------
-
     if (!program) {
         std::cerr << "Cannot create program from " << std::string(PROJECT_DIR) + "/shaders/base_vs.glsl" << " and ";
         std::cerr << std::string(PROJECT_DIR) + "/shaders/base_fs.glsl" << " shader files" << std::endl;
     }
-
     //Zoomowanie-------------------------------------------------------------------------------------------------------
-
     set_camera(new Camera);
-
-    //-----------------------------------------------------------------------------------------------------------------
-
-
-
-    //Tablica wierzchołków i kolorów
-    std::vector<GLfloat> domek = {
-
-            -0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 1.0f,
-            0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 1.0f,
-            -0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 1.0f,
-            0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 1.0f,
-
-            -0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f,
-            0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f,
-            0.0f, 0.0f, 0.8f, 1.0f, 0.0f, 0.0f,
-
-            0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f,
-            0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f,
-            0.0f, 0.0f, 0.8f, 0.0f, 1.0f, 0.0f,
-
-            0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f,
-            -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f,
-            0.0f, 0.0f, 0.8f, 0.0f, 0.0f, 1.0f,
-
-            -0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 1.0f,
-            -0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 1.0f,
-            0.0f, 0.0f, 0.8f, 0.0f, 1.0f, 1.0f,
-    };
-
-    //Bufor indeksów
-    std::vector<GLushort> indices = {
-            2,0,1,1,3,2,6,5,4,9,8,7,12,11,10,15,14,13 // wypisujemy tyle elementów ile mamy wierzchołków
-            //4,5,6,7,8,9,10,11,12,13,14,15
-    };
-    GLuint idx_buffer_handle;
-    glGenBuffers(1,&idx_buffer_handle);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, idx_buffer_handle);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(GLushort), indices.data(),
-                 GL_STATIC_DRAW);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-
-    //Vertex Buffer
-    GLuint v_buffer_handle;
-    glGenBuffers(1, &v_buffer_handle);
-    glBindBuffer(GL_ARRAY_BUFFER, v_buffer_handle);
-    glBufferData(GL_ARRAY_BUFFER, domek.size() * sizeof(GLfloat), domek.data(), GL_STATIC_DRAW);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-
-    glGenVertexArrays(1, &vao_);
-    glBindVertexArray(vao_);
-    glBindBuffer(GL_ARRAY_BUFFER, v_buffer_handle);
-
-    //Ustawiania skad mają wyświetlać się wierzchołki
-    glEnableVertexAttribArray(0);
-    //Czyli współrzędne wierzchołka trójkąta pobierz z 3 wartości
-    // zaczynając od 0 (reinterpret_cast<GLvoid *>(0)) i przeskakuj o 6 następnych (6 * sizeof(GLfloat))
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), reinterpret_cast<GLvoid *>(0));
-    glEnableVertexAttribArray(1);
-    //Ustawianie skąd ma wyświetlać się kolor
-    // Czyli kolor pobierz z 3 wartości zaczynając
-    // od 3 (reinterpret_cast<GLvoid *>(3*sizeof(GLfloat))) i przeskakuj o 6 do następnych (6 * sizeof(GLfloat))
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), reinterpret_cast<GLvoid *>(3*sizeof(GLfloat)));
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, idx_buffer_handle); //dodane w zadaniu 3
-    glBindVertexArray(0);
 
     //Uniform-------------------------------------------------------------------------------------
     GLuint ubo_handle;
-
     glGenBuffers(1,&ubo_handle);
     glBindBuffer(GL_UNIFORM_BUFFER, ubo_handle); //zabindowanie
     float strength = 1.0;
@@ -112,13 +39,11 @@ void SimpleShapeApplication::init() {
     glBufferSubData(GL_UNIFORM_BUFFER, 4 * sizeof(float), 3 * sizeof(float), light);
     glBindBuffer(GL_UNIFORM_BUFFER, 0); //odbindowanie
     glBindBufferBase(GL_UNIFORM_BUFFER, 0, ubo_handle);
-    //---------------------------------------------------------------------------------------------
+
     //PVM----------------------------------------------------------------------------------------------------------
     glGenBuffers(1,&u_pvm_buffer_);
-
     int w, h;
     std::tie(w, h) = frame_buffer_size();
-
     camera_->perspective(glm::pi<float>()/2.0,(float)w/(float)h,1.0f,10.0f);
     glm::mat4 P_ = camera_->projection();
     camera_->look_at(glm::vec3{-1.0,-1.0,1.0},glm::vec3{0.0f,0.0f,0.0f},glm::vec3{1.0,0.5,1.0});
@@ -130,13 +55,8 @@ void SimpleShapeApplication::init() {
     //---------------------------
 
     //Animacja_piramidy
-
     auto p = new Pyramid();
     pyramid = p;
-
-
-    //------------------------------
-
 
     glBindBufferBase(GL_UNIFORM_BUFFER, 1, u_pvm_buffer_);
 
