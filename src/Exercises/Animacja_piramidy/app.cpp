@@ -5,12 +5,7 @@
 #include <iostream>
 #include <vector>
 #include <tuple>
-#include "Application/utils.h"
-#include <glm/vec3.hpp> // glm::vec3
-#include <glm/vec4.hpp> // glm::vec4
-#include <glm/mat4x4.hpp> // glm::mat4
-#include <glm/gtc/matrix_transform.hpp> // glm::translate, glm::rotate, glm::scale, glm::perspective
-#include <glm/gtx/string_cast.hpp>
+
 
 void SimpleShapeApplication::init() {
 
@@ -18,14 +13,6 @@ void SimpleShapeApplication::init() {
     auto program = xe::create_program(std::string(PROJECT_DIR) + "/shaders/base_vs.glsl",
                                       std::string(PROJECT_DIR) + "/shaders/base_fs.glsl");
 
-    //Uniforms---------------------------------------------------------------------------------------------------------
-    auto u_modifiers_index = glGetUniformBlockIndex(program, "Modifiers");
-    if (u_modifiers_index == GL_INVALID_INDEX) {
-        std::cout << "Cannot find Modifiers uniform block in program" << std::endl;
-    }
-    else {
-        glUniformBlockBinding(program, u_modifiers_index, 0);
-    }
     //-----------------------------------------------------------------------------------------------------------------
     //PVM--------------------------------------------------------------------------------------------------------------
     auto u_transformations_index = glGetUniformBlockIndex(program, "Transformations");
@@ -142,6 +129,13 @@ void SimpleShapeApplication::init() {
     set_controler(new CameraControler(camera()));
     //---------------------------
 
+    //Animacja_piramidy
+
+    auto p = new Pyramid();
+    pyramid = p;
+
+
+    //------------------------------
 
 
     glBindBufferBase(GL_UNIFORM_BUFFER, 1, u_pvm_buffer_);
@@ -166,12 +160,10 @@ void SimpleShapeApplication::frame() {
     glBufferData(GL_UNIFORM_BUFFER,sizeof(glm::mat4), nullptr, GL_STATIC_DRAW);
     glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), &PVM[0]);
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
-    //glBindBufferBase(GL_UNIFORM_BUFFER, 1, u_pvm_buffer_);
-
-    glBindVertexArray(vao_);
-    //glDrawArrays(GL_TRIANGLES, 0, 9);
-    glDrawElements(GL_TRIANGLES, 18, GL_UNSIGNED_SHORT, reinterpret_cast<GLvoid*>(0));
-    glBindVertexArray(0);
+    //glBindVertexArray(vao_);
+    //glDrawElements(GL_TRIANGLES, 18, GL_UNSIGNED_SHORT, reinterpret_cast<GLvoid*>(0));
+    pyramid->draw();
+    //glBindVertexArray(0);
 }
 
 void SimpleShapeApplication::framebuffer_resize_callback(int w, int h) {

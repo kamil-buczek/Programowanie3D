@@ -4,7 +4,6 @@
 
 
 #pragma once
-
 #include <vector>
 #include <glm/mat4x4.hpp> // glm::mat4
 #include "Application/application.h"
@@ -12,6 +11,7 @@
 #include "glad/glad.h"
 #include "camera.h"
 #include "camera_controler.h"
+#include "pyramid.h"
 
 class SimpleShapeApplication : public xe::Application {
 public:
@@ -29,6 +29,7 @@ public:
 
     Camera *camera_;
 
+    Pyramid *pyramid;
     void set_camera(Camera *camera) { camera_ = camera; }
 
     ~SimpleShapeApplication() {
