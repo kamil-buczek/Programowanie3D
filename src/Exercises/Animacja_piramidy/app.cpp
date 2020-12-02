@@ -39,11 +39,13 @@ void SimpleShapeApplication::init() {
     glBufferSubData(GL_UNIFORM_BUFFER, 4 * sizeof(float), 3 * sizeof(float), light);
     glBindBuffer(GL_UNIFORM_BUFFER, 0); //odbindowanie
     glBindBufferBase(GL_UNIFORM_BUFFER, 0, ubo_handle);
-
+    //---------------------------------------------------------------------------------------------
     //PVM----------------------------------------------------------------------------------------------------------
     glGenBuffers(1,&u_pvm_buffer_);
+
     int w, h;
     std::tie(w, h) = frame_buffer_size();
+
     camera_->perspective(glm::pi<float>()/2.0,(float)w/(float)h,1.0f,10.0f);
     glm::mat4 P_ = camera_->projection();
     camera_->look_at(glm::vec3{-1.0,-1.0,1.0},glm::vec3{0.0f,0.0f,0.0f},glm::vec3{1.0,0.5,1.0});
@@ -55,8 +57,7 @@ void SimpleShapeApplication::init() {
     //---------------------------
 
     //Animacja_piramidy
-    auto p = new Pyramid();
-    pyramid = p;
+    pyramid_ = std::make_shared<Pyramid>();
 
     glBindBufferBase(GL_UNIFORM_BUFFER, 1, u_pvm_buffer_);
 
@@ -82,7 +83,7 @@ void SimpleShapeApplication::frame() {
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
     //glBindVertexArray(vao_);
     //glDrawElements(GL_TRIANGLES, 18, GL_UNSIGNED_SHORT, reinterpret_cast<GLvoid*>(0));
-    pyramid->draw();
+    pyramid_->draw();
     //glBindVertexArray(0);
 }
 

@@ -6,6 +6,7 @@
 #pragma once
 #include <vector>
 #include <glm/mat4x4.hpp> // glm::mat4
+#include <memory>
 #include "Application/application.h"
 #include "Application/utils.h"
 #include "glad/glad.h"
@@ -29,7 +30,8 @@ public:
 
     Camera *camera_;
 
-    Pyramid *pyramid;
+    std::shared_ptr<Pyramid> pyramid_;
+
     void set_camera(Camera *camera) { camera_ = camera; }
 
     ~SimpleShapeApplication() {
