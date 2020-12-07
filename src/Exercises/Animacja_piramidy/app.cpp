@@ -5,6 +5,7 @@
 #include <iostream>
 #include <vector>
 #include <tuple>
+#include <glm/glm.hpp>
 
 
 void SimpleShapeApplication::init() {
@@ -46,9 +47,9 @@ void SimpleShapeApplication::init() {
     int w, h;
     std::tie(w, h) = frame_buffer_size();
 
-    camera_->perspective(glm::pi<float>()/2.0,(float)w/(float)h,0.1f,10.0f);
+    camera_->perspective(glm::pi<float>()/2.0,(float)w/(float)h,0.1f,200.0f);
     glm::mat4 P_ = camera_->projection();
-    camera_->look_at(glm::vec3{-1.0,-1.0,1.0},glm::vec3{0.0f,0.0f,0.0f},glm::vec3{1.0,0.5,1.0});
+    camera_->look_at(glm::vec3{0.0,0.0,10.0},glm::vec3{0.0f,0.0f,0.0f},glm::vec3{1.0,0.0,0.0});
     glm::mat4 V_ = camera_->view();
     glm::mat4 M(1.0f);
 
@@ -69,22 +70,39 @@ void SimpleShapeApplication::init() {
     glFrontFace(GL_CCW);
     glCullFace(GL_BACK);
     glUseProgram(program);
+    //Animacja Piramidy
     start_ = std::chrono::steady_clock::now();
+    rotation_period  = 4.0;
+    //------------------
 }
 
 void SimpleShapeApplication::frame() {
 
+    //Animacja piramidy---------------------------
+    auto now = std::chrono::steady_clock::now();
+    auto elapsed_time = std::chrono::duration_cast<std::chrono::duration<float>>(now - start_).count();
+    auto rotation_angle = 2.0f*glm::pi<float>()*elapsed_time/rotation_period;
+    glm::vec3 axis = glm::vec3(0.0f, 0.0f, 1.0f);
+    auto R = glm::rotate(glm::mat4(1.0f), rotation_angle,axis);
+    auto orbital_rotation_period = 20.0f;
+    auto orbital_rotation_angle = 2.0f*glm::pi<float>()*elapsed_time/orbital_rotation_period;
+    auto a = 10;
+    auto b = 8;
+    auto x = a*cos(orbital_rotation_angle);
+    auto y = b*sin(orbital_rotation_angle);
+    auto O = glm::translate(glm::mat4(1.0f), glm::vec3{x,y, 0.0});
+    auto M = O*R;
+    //Animacja piramidy
+
 
     glm::mat4 P_ = camera_->projection();
     glm::mat4 V_ = camera_->view();
-    auto PVM = P_*V_;
+    auto PVM = P_*V_*M;
     glBindBuffer(GL_UNIFORM_BUFFER, u_pvm_buffer_);
     glBufferData(GL_UNIFORM_BUFFER,sizeof(glm::mat4), nullptr, GL_STATIC_DRAW);
     glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), &PVM[0]);
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
     pyramid_->draw();
-    auto now = std::chrono::steady_clock::now();
-    auto elapsed_time = std::chrono::duration_cast<std::chrono::duration<float>>(now - start_).count();
 
 }
 
