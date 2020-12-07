@@ -59,6 +59,8 @@ void SimpleShapeApplication::init() {
 
     //Animacja_piramidy
     pyramid_ = std::make_shared<Pyramid>();
+    ksiezyc_ = std::make_shared<Pyramid>();
+    satelita_ = std::make_shared<Pyramid>();
 
     glBindBufferBase(GL_UNIFORM_BUFFER, 1, u_pvm_buffer_);
 
@@ -78,7 +80,7 @@ void SimpleShapeApplication::init() {
 
 void SimpleShapeApplication::frame() {
 
-    //Animacja piramidy---------------------------
+    //Ziemia----------------------------------------------------
     auto now = std::chrono::steady_clock::now();
     auto elapsed_time = std::chrono::duration_cast<std::chrono::duration<float>>(now - start_).count();
     auto rotation_angle = 2.0f*glm::pi<float>()*elapsed_time/rotation_period;
@@ -92,8 +94,6 @@ void SimpleShapeApplication::frame() {
     auto y = b*sin(orbital_rotation_angle);
     auto O = glm::translate(glm::mat4(1.0f), glm::vec3{x,y, 0.0});
     auto M = O*R;
-    //Animacja piramidy
-
 
     glm::mat4 P_ = camera_->projection();
     glm::mat4 V_ = camera_->view();
@@ -103,6 +103,47 @@ void SimpleShapeApplication::frame() {
     glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), &PVM[0]);
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
     pyramid_->draw();
+    //-----------------------------------------------------------------------------
+    //Ksiezyc----------------------------------------------------------------------
+    moon_rotation_period = 10.0;
+    auto moon_rotation_angle = 2.0f*glm::pi<float>()*elapsed_time/moon_rotation_period;
+    auto moon_orbital_rotation_period = 10.0;
+    auto moon_orbital_rotation_angle = 2.0f*glm::pi<float>()*elapsed_time/rotation_period;
+    a = 3;
+    b = 3;
+    x = a*cos(moon_orbital_rotation_angle);
+    y = b*sin(moon_orbital_rotation_angle);
+    glm::vec3 moon_axis = glm::vec3(0.0f, 0.0f, 1.0f);
+    auto R_moon = glm::rotate(glm::mat4(1.0f), moon_rotation_angle,moon_axis);
+    auto O_moon = glm::translate(glm::mat4(1.0f), glm::vec3{x,y, 0.0});
+    PVM = P_*V_*O*O_moon*R;
+    PVM = glm::scale(PVM,{0.5f,0.5f,0.5f});
+    glBindBuffer(GL_UNIFORM_BUFFER, u_pvm_buffer_);
+    glBufferData(GL_UNIFORM_BUFFER,sizeof(glm::mat4), nullptr, GL_STATIC_DRAW);
+    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), &PVM[0]);
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+    ksiezyc_->draw();
+    //--------------------------------------------------------------------------
+    //Satelita------------------------------------------------------------------
+    satelite_rotation_period = 2.0;
+    auto satelite_rotation_angle = 2.0f*glm::pi<float>()*elapsed_time/satelite_rotation_period;
+    auto satelite_orbital_rotation_period = 2.0;
+    auto satelite_orbital_rotation_angle = 2.0f*glm::pi<float>()*elapsed_time/satelite_orbital_rotation_period;
+    a = 1.5;
+    b = 1.5;
+    x = a*cos(satelite_orbital_rotation_angle);
+    auto z = b*sin(satelite_orbital_rotation_angle);
+    glm::vec3 satelite_axis = glm::vec3(0.0f, 1.0f, 0.0f);
+    auto R_satelite = glm::rotate(glm::mat4(1.0f), satelite_rotation_angle,satelite_axis);
+    auto O_satelite = glm::translate(glm::mat4(1.0f), glm::vec3{x,0.0f, z});
+    PVM = P_*V_*O*O_satelite*R*R_satelite;
+    PVM = glm::scale(PVM,{0.25f,0.25f,0.25f});
+    glBindBuffer(GL_UNIFORM_BUFFER, u_pvm_buffer_);
+    glBufferData(GL_UNIFORM_BUFFER,sizeof(glm::mat4), nullptr, GL_STATIC_DRAW);
+    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), &PVM[0]);
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+    satelita_->draw();
+    //--------------------------------------------------------------------------
 
 }
 

@@ -26,6 +26,8 @@ public:
     void set_camera(Camera *camera) { camera_ = camera; }
     Camera *camera_;
     std::shared_ptr<Pyramid> pyramid_;
+    std::shared_ptr<Pyramid> ksiezyc_;
+    std::shared_ptr<Pyramid> satelita_;
 
     ~SimpleShapeApplication() {
         if (camera_) {
@@ -48,5 +50,7 @@ private:
     //Piramid animation
     std::chrono::steady_clock::time_point start_;
     float rotation_period;
+    float moon_rotation_period;
+    float satelite_rotation_period;
     //------------------
 };
