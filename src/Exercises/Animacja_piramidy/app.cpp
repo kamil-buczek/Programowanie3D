@@ -46,7 +46,7 @@ void SimpleShapeApplication::init() {
     int w, h;
     std::tie(w, h) = frame_buffer_size();
 
-    camera_->perspective(glm::pi<float>()/2.0,(float)w/(float)h,1.0f,10.0f);
+    camera_->perspective(glm::pi<float>()/2.0,(float)w/(float)h,0.1f,10.0f);
     glm::mat4 P_ = camera_->projection();
     camera_->look_at(glm::vec3{-1.0,-1.0,1.0},glm::vec3{0.0f,0.0f,0.0f},glm::vec3{1.0,0.5,1.0});
     glm::mat4 V_ = camera_->view();
@@ -69,6 +69,7 @@ void SimpleShapeApplication::init() {
     glFrontFace(GL_CCW);
     glCullFace(GL_BACK);
     glUseProgram(program);
+    start_ = std::chrono::steady_clock::now();
 }
 
 void SimpleShapeApplication::frame() {
@@ -81,10 +82,10 @@ void SimpleShapeApplication::frame() {
     glBufferData(GL_UNIFORM_BUFFER,sizeof(glm::mat4), nullptr, GL_STATIC_DRAW);
     glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), &PVM[0]);
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
-    //glBindVertexArray(vao_);
-    //glDrawElements(GL_TRIANGLES, 18, GL_UNSIGNED_SHORT, reinterpret_cast<GLvoid*>(0));
     pyramid_->draw();
-    //glBindVertexArray(0);
+    auto now = std::chrono::steady_clock::now();
+    auto elapsed_time = std::chrono::duration_cast<std::chrono::duration<float>>(now - start_).count();
+
 }
 
 void SimpleShapeApplication::framebuffer_resize_callback(int w, int h) {
