@@ -127,7 +127,7 @@ void SimpleShapeApplication::frame() {
     //Satelita------------------------------------------------------------------
     satelite_rotation_period = 2.0;
     auto satelite_rotation_angle = 2.0f*glm::pi<float>()*elapsed_time/satelite_rotation_period;
-    glm::vec3 satelite_axis = glm::vec3(0.0f, 0.0f, 1.0f);
+    glm::vec3 satelite_axis = glm::vec3(0.0f, 0.0f, 1.0);
     auto R_satelite = glm::rotate(glm::mat4(1.0f), satelite_rotation_angle,satelite_axis);
 
 
