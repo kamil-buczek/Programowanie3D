@@ -17,10 +17,10 @@ Quad::Quad() {
     //Oświetlenie -- reprezentacja kwadratu
     std::vector<GLfloat> kwadrat = {
 
-            -1.0f, 1.0f, 0.0f, 0.8090f, 0.5000f, //0
-            1.0f, 1.0f, 0.0f, 0.5000f, 0.8090f, //1
-            -1.0f, -1.0f, 0.0f, 0.5000f, 0.1910f, //2
-            1.0f, -1.0f, 0.0f, 0.1910f, 0.5000f, //3
+            -1.0f, 1.0f, 0.0f, 0.8090f, 0.5000f, 0.0f, 1.0f, 0.0f, //0
+            1.0f, 1.0f, 0.0f, 0.5000f, 0.8090f, 0.0f, 1.0f, 0.0f, //1
+            -1.0f, -1.0f, 0.0f, 0.5000f, 0.1910f, 0.0f, 1.0f, 0.0f, //2
+            1.0f, -1.0f, 0.0f, 0.1910f, 0.5000f, 0.0f, 1.0f, 0.0f, //3
     };
 
     //Bufor indeksów
@@ -47,9 +47,15 @@ Quad::Quad() {
     glBindVertexArray(vao_);
     glBindBuffer(GL_ARRAY_BUFFER, buffer_[1]);
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), reinterpret_cast<GLvoid *>(0));
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), reinterpret_cast<GLvoid *>(0));
     glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), reinterpret_cast<GLvoid *>(3*sizeof(GLfloat)));
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), reinterpret_cast<GLvoid *>(3*sizeof(GLfloat)));
+
+    //Oświetlenie-----------------------------------
+    glEnableVertexAttribArray(2);
+    glVertexAttribPointer(2,3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), reinterpret_cast<GLvoid *>(3*sizeof(GLfloat)));
+    //----------------------------------------------
+
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffer_[0]); //dodane w zadaniu 3
     glBindVertexArray(0);

@@ -88,8 +88,8 @@ void SimpleShapeApplication::frame() {
     auto R = glm::rotate(glm::mat4(1.0f), rotation_angle,axis);
     auto orbital_rotation_period = 20.0f;
     auto orbital_rotation_angle = 2.0f*glm::pi<float>()*elapsed_time/orbital_rotation_period;
-    auto a = 10;
-    auto b = 8;
+    auto a = 10.0f;
+    auto b = 8.0f;
     auto x = a*cos(orbital_rotation_angle);
     auto y = b*sin(orbital_rotation_angle);
     auto O = glm::translate(glm::mat4(1.0f), glm::vec3{x,y, 0.0});
@@ -109,8 +109,8 @@ void SimpleShapeApplication::frame() {
     auto moon_rotation_angle = 2.0f*glm::pi<float>()*elapsed_time/moon_rotation_period;
     auto moon_orbital_rotation_period = 10.0;
     auto moon_orbital_rotation_angle = 2.0f*glm::pi<float>()*elapsed_time/rotation_period;
-    a = 3;
-    b = 3;
+    a = 3.0f;
+    b = 3.0f;
     x = a*cos(moon_orbital_rotation_angle);
     y = b*sin(moon_orbital_rotation_angle);
     glm::vec3 moon_axis = glm::vec3(0.0f, 0.0f, 1.0f);
@@ -127,20 +127,22 @@ void SimpleShapeApplication::frame() {
     //Satelita------------------------------------------------------------------
     satelite_rotation_period = 2.0;
     auto satelite_rotation_angle = 2.0f*glm::pi<float>()*elapsed_time/satelite_rotation_period;
-    glm::vec3 satelite_axis = glm::vec3(0.0f, 0.0f, 1.0);
-    auto R_satelite = glm::rotate(glm::mat4(1.0f), satelite_rotation_angle,satelite_axis);
+    glm::vec3 satelite_axis = glm::vec3(0.0f, 0.0f, 1.0f);
+    auto R_1 = glm::rotate(glm::mat4(1.0f),glm::radians(240.0f),glm::vec3(0.0f,1.0f,0.0f));
+    auto R_2= glm::rotate(glm::mat4(1.0f), satelite_rotation_angle,satelite_axis);
+    auto R_satelite = R_1*R_2;
 
 
     auto satelite_orbital_rotation_period = 2.0;
     auto satelite_orbital_rotation_angle = 2.0f*glm::pi<float>()*elapsed_time/satelite_orbital_rotation_period;
-    a = 1.5;
-    b = 1.5;
-    x = a*cos(satelite_orbital_rotation_angle);
-    y = b*sin(satelite_orbital_rotation_angle);
-    auto O_satelite = glm::translate(glm::mat4(1.0f), glm::vec3{x,y, 0.0f});
+    a = 1.5f;
+    b = 1.5f;
+    y = a*sin(satelite_orbital_rotation_angle);
+    auto z = b*cos(satelite_orbital_rotation_angle);
+    auto O_satelite = glm::translate(glm::mat4(1.0f), glm::vec3{0.0f,y, z});
 
 
-    PVM = P_*V_*O*O_satelite*R_satelite;
+    PVM = P_*V_*O*O_satelite*R_satelite*R;
    //PVM = P_*V_*O*O_satelite*R_satelite;
     PVM = glm::scale(PVM,{0.25f,0.25f,0.25f});
     glBindBuffer(GL_UNIFORM_BUFFER, u_pvm_buffer_);
