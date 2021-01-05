@@ -128,9 +128,9 @@ void SimpleShapeApplication::frame() {
     satelite_rotation_period = 2.0;
     auto satelite_rotation_angle = 2.0f*glm::pi<float>()*elapsed_time/satelite_rotation_period;
     glm::vec3 satelite_axis = glm::vec3(0.0f, 0.0f, 1.0f);
-    auto R_1 = glm::rotate(glm::mat4(1.0f),glm::radians(240.0f),glm::vec3(0.0f,1.0f,0.0f));
+    auto R_1 = glm::rotate(glm::mat4(1.0f),glm::radians(-90.0f),glm::vec3(0.0f,1.0f,0.0f));
     auto R_2= glm::rotate(glm::mat4(1.0f), satelite_rotation_angle,satelite_axis);
-    auto R_satelite = R_1*R_2;
+    auto R_satelite = R_1 * R_2;
 
 
     auto satelite_orbital_rotation_period = 2.0;
@@ -142,7 +142,7 @@ void SimpleShapeApplication::frame() {
     auto O_satelite = glm::translate(glm::mat4(1.0f), glm::vec3{0.0f,y, z});
 
 
-    PVM = P_*V_*O*O_satelite*R_satelite*R;
+    PVM = P_*V_*O_satelite*O*R_satelite*R;
    //PVM = P_*V_*O*O_satelite*R_satelite;
     PVM = glm::scale(PVM,{0.25f,0.25f,0.25f});
     glBindBuffer(GL_UNIFORM_BUFFER, u_pvm_buffer_);
