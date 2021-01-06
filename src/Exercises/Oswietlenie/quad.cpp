@@ -16,11 +16,11 @@ Quad::Quad() {
 
     //Oświetlenie -- reprezentacja kwadratu
     std::vector<GLfloat> kwadrat = {
-
-            -1.0f, 1.0f, 0.0f, 0.8090f, 0.5000f, 0.0f, 1.0f, 0.0f, //0
-            1.0f, 1.0f, 0.0f, 0.5000f, 0.8090f, 0.0f, 1.0f, 0.0f, //1
-            -1.0f, -1.0f, 0.0f, 0.5000f, 0.1910f, 0.0f, 1.0f, 0.0f, //2
-            1.0f, -1.0f, 0.0f, 0.1910f, 0.5000f, 0.0f, 1.0f, 0.0f, //3
+                                                    //Wektory normalne  dodanie w zadaniu z oświetleniem
+            -1.0f, 1.0f, 0.0f, 0.8090f, 0.5000f,    0.0f, 0.0f, 1.0f, //0
+            1.0f, 1.0f, 0.0f, 0.5000f, 0.8090f,     0.0f, 0.0f, 1.0f, //1
+            -1.0f, -1.0f, 0.0f, 0.5000f, 0.1910f,   0.0f, 0.0f, 1.0f, //2
+            1.0f, -1.0f, 0.0f, 0.1910f, 0.5000f,    0.0f, 0.0f, 1.0f, //3
     };
 
     //Bufor indeksów
@@ -53,7 +53,7 @@ Quad::Quad() {
 
     //Oświetlenie-----------------------------------
     glEnableVertexAttribArray(2);
-    glVertexAttribPointer(2,3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), reinterpret_cast<GLvoid *>(3*sizeof(GLfloat)));
+    glVertexAttribPointer(2,3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), reinterpret_cast<GLvoid *>(5*sizeof(GLfloat)));
     //----------------------------------------------
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
