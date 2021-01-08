@@ -8,6 +8,8 @@
 #include <glm/gtx/string_cast.hpp>
 #include "Application/utils.h"
 #include "Application/utils.cpp"
+#include "quad.h"
+
 
 
 void SimpleShapeApplication::init() {
@@ -86,6 +88,16 @@ void SimpleShapeApplication::init() {
     //Teksturowanie-----------------------
     xe::set_uniform1i(program, "diffuse_map", 0);
     //-----------------------------------
+    auto material = new PhongMaterial();
+
+    material->Kd = glm::vec3(1.0, 0.0, 0.0);
+    material->Kd_map = 0;
+    material->Ks = glm::vec3(0.05, 0.05, 0.05);
+    material->Ks_map = 0;
+    material->Ns = 1000.0f;
+    material->Ns_map = 0;
+
+    quad_->set_material(material);
 
 }
 

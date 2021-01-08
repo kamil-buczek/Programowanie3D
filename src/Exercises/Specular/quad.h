@@ -8,7 +8,7 @@
 #include "Application/utils.h"
 #include "glad/glad.h"
 #include "camera.h"
-
+#include "phong_material.h"
 
 class Quad  {
 public:
@@ -21,10 +21,15 @@ public:
     void operator=(Quad&& rhs) = delete;
     Quad(Quad&& rhs) = delete;
 
+    PhongMaterial *material_; //Specular
+
+    void set_material(PhongMaterial *material) { material_ = material; }
+
 private:
     GLuint vao_;
     GLuint buffer_[2];
     //Teksturowanie--------
     GLuint diffuse_texture_;
+
     //---------------------
 };

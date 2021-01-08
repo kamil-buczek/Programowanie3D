@@ -13,6 +13,7 @@
 #include "camera_controler.h"
 #include "quad.h"
 
+
 class SimpleShapeApplication : public xe::Application {
 public:
     SimpleShapeApplication(int width, int height, std::string title, int major = 4, int minor = 1) :
@@ -31,6 +32,8 @@ public:
 
     Quad *quad_;
     //std::shared_ptr<Quad> quad_;
+
+
 
     ~SimpleShapeApplication() {
         if (camera_) {
@@ -53,13 +56,6 @@ private:
     GLuint u_light_buffer;
     CameraControler *controler_;
 
-    //struct Light {
-     //   glm::vec4 ambient;
-    //    glm::vec4 position;
-    //    glm::vec4 color;
-   //     glm::vec4 a;
-   // }light_;
-
     struct Light {
         glm::vec4 position;
         glm::vec4 position_in_vs;
@@ -67,5 +63,6 @@ private:
         glm::vec4 a;
         glm::vec4 ambient;
     }light_;
+
 
 };

@@ -12,7 +12,7 @@ add_executable(${PROJECT_NAME}
         quad.cpp
         quad.h
         $<TARGET_OBJECTS:glad>
-        camera.h rotation.h camera_controler.h)
+        camera.h rotation.h camera_controler.h phong_material.h)
 
 target_link_libraries(${PROJECT_NAME} PUBLIC )
 target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/src)
