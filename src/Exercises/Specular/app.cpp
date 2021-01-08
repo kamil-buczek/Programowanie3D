@@ -6,6 +6,8 @@
 #include <vector>
 #include <tuple>
 #include <glm/gtx/string_cast.hpp>
+#include "Application/utils.h"
+#include "Application/utils.cpp"
 
 
 void SimpleShapeApplication::init() {
@@ -14,21 +16,11 @@ void SimpleShapeApplication::init() {
                                       std::string(PROJECT_DIR) + "/shaders/base_fs.glsl");
 
     //PVM--------------------------------------------------------------------------------------------------------------
-    auto u_transformations_index = glGetUniformBlockIndex(program, "Transformations");
-    if (u_transformations_index == GL_INVALID_INDEX) {
-        std::cout << "Cannot find Transformations uniform block in program" << std::endl;
-    } else{
-        glUniformBlockBinding(program, u_transformations_index, 1);
-    }
-    //Oswietlenie------------------
-    auto u_light_index = glGetUniformBlockIndex(program, "Light");
-    if (u_light_index == GL_INVALID_INDEX){
-        std::cout<< "Cannot find Light uniform block in program" << std::endl;
-    }else{
-        glUniformBlockBinding(program, u_light_index, 2);
-    }
+    xe::set_uniform_block_binding(program, "Transformations", 1);
 
-    //-----------------------------------------------------------------------------------------------------------------
+    //Oswietlenie----------------------------------------------------------------------
+    xe::set_uniform_block_binding(program, "Light", 2);
+    //---------------------------------------------------------------------------------
     if (!program) {
         std::cerr << "Cannot create program from " << std::string(PROJECT_DIR) + "/shaders/base_vs.glsl" << " and ";
         std::cerr << std::string(PROJECT_DIR) + "/shaders/base_fs.glsl" << " shader files" << std::endl;
@@ -66,8 +58,6 @@ void SimpleShapeApplication::init() {
     //---------------------------
 
     quad_ = new Quad();
-    //quad_ = std::make_shared<Quad>();
-    //pyramid_ = std::make_shared<Pyramid>();
 
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
     glBindBufferBase(GL_UNIFORM_BUFFER, 1, u_pvm_buffer_);
@@ -94,20 +84,13 @@ void SimpleShapeApplication::init() {
     glUseProgram(program);
 
     //Teksturowanie-----------------------
-    auto  u_diffuse_map_location = glGetUniformLocation(program,"diffuse_map");
-    if(u_diffuse_map_location==-1) {
-        std::cerr<<"Cannot find uniform diffuse_map\n";
-    } else {
-        glUniform1ui(u_diffuse_map_location,0);
-    }
+    xe::set_uniform1i(program, "diffuse_map", 0);
     //-----------------------------------
 
 }
 
 void SimpleShapeApplication::frame() {
-    //glm::mat4 P_ = camera_->projection();
-    //glm::mat4 V_ = camera_->view();
-    //auto PVM = P_*V_;
+
     glBindBuffer(GL_UNIFORM_BUFFER, u_pvm_buffer_);
     auto P = camera()->projection();
     auto VM = camera()->view();
@@ -122,19 +105,18 @@ void SimpleShapeApplication::frame() {
                         2 * sizeof(glm::mat4) + col * 4 * sizeof(GLfloat),
                         3 * sizeof(GLfloat), &N[col]);
     }
-    auto light_position_in_vs = camera()->view() * light_.position;
-    //std::cout<<glm::to_string(light_.color)<<std::endl;
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+    light_.position_in_vs = camera()->view() * light_.position;
 
     glBindBuffer(GL_UNIFORM_BUFFER, u_light_buffer);
-    glBufferSubData(GL_UNIFORM_BUFFER, 0, 4 * sizeof(float), &light_.ambient[0]);
-    glBufferSubData(GL_UNIFORM_BUFFER, 4 * sizeof(float), 4 * sizeof(float), &light_position_in_vs[0] );
-    glBufferSubData(GL_UNIFORM_BUFFER, 8 * sizeof(float), 4 * sizeof(float), &light_.color[0] );
-    glBufferSubData(GL_UNIFORM_BUFFER, 12 * sizeof(float), 4 * sizeof(float), &light_.a[0] );
+    glBufferSubData(GL_UNIFORM_BUFFER, 0, 16 * sizeof(float), &light_.position_in_vs[0]);
+    //glBufferSubData(GL_UNIFORM_BUFFER, 0, 4 * sizeof(float), &light_.ambient[0]);
+    //glBufferSubData(GL_UNIFORM_BUFFER, 4 * sizeof(float), 4 * sizeof(float), &light_position_in_vs[0] );
+    //glBufferSubData(GL_UNIFORM_BUFFER, 8 * sizeof(float), 4 * sizeof(float), &light_.color[0] );
+    //glBufferSubData(GL_UNIFORM_BUFFER, 12 * sizeof(float), 4 * sizeof(float), &light_.a[0] );
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-
-    //pyramid_->draw();
     quad_->draw();
 }
 
