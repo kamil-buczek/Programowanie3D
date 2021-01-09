@@ -12,6 +12,7 @@
 
 
 
+
 void SimpleShapeApplication::init() {
 
     auto program = xe::create_program(std::string(PROJECT_DIR) + "/shaders/base_vs.glsl",
@@ -19,10 +20,12 @@ void SimpleShapeApplication::init() {
 
     //PVM--------------------------------------------------------------------------------------------------------------
     xe::set_uniform_block_binding(program, "Transformations", 1);
-
     //Oswietlenie----------------------------------------------------------------------
     xe::set_uniform_block_binding(program, "Light", 2);
     //---------------------------------------------------------------------------------
+    //Specular - Material
+    xe::set_uniform_block_binding(program, "Material", 3);
+    //-------------------------------------------------------------
     if (!program) {
         std::cerr << "Cannot create program from " << std::string(PROJECT_DIR) + "/shaders/base_vs.glsl" << " and ";
         std::cerr << std::string(PROJECT_DIR) + "/shaders/base_fs.glsl" << " shader files" << std::endl;
@@ -76,7 +79,55 @@ void SimpleShapeApplication::init() {
     light_.color = glm::vec4(1.0, 1.0, 1.0, 1.0);
     light_.a = glm::vec4(1.0, 0.0, 1.0, 0.0);
 
+    //Specular -tekstura
+    //auto texture_filename = std::string(PROJECT_DIR) + "/Textures/plastic.png";
+    //int width, height, n_channels;
+    //uint8_t  *data = stbi_load(texture_filename.c_str(), &width, &height, &n_channels, 0);
+
+    //if(data == nullptr)
+    //    std::cerr<<"Pointer *data points to nullptr"<<std::endl;
+    //else
+    //    std::cout<<"Width of teksture is: "<<width<<"\nHeight of teksture is: "<<height<<"\nn_channels: "<<n_channels<<std::endl;
+
+    GLuint diffuse_texture;
+    glGenTextures(1,&diffuse_texture);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, diffuse_texture);
+    xe::utils::load_texture(std::string(PROJECT_DIR) + "/Textures/plastic.png");
+    glBindTexture(GL_TEXTURE_2D, 0);
+    //-----------------------------------------
+    //Shinesse texture
+    GLuint shininess_texture;
+    glGenTextures(1,&shininess_texture);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, shininess_texture);
+    xe::utils::load_texture(std::string(PROJECT_DIR) + "/Textures/shininess.png");
+    glBindTexture(GL_TEXTURE_2D, 0);
     //------------------------------------
+
+    auto material = new PhongMaterial();
+
+    material->Kd = glm::vec3(1.0, 1.0, 1.0);
+    material->Kd_map = diffuse_texture;
+    material->Ks = glm::vec3(0.05, 0.05, 0.05);
+    material->Ks_map = 0;
+    material->Ns = 1000.0f;
+    material->Ns_map = shininess_texture;
+
+    quad_->set_material(material);
+
+    //Specular- material
+    glGenBuffers(1, &u_material_buffer);
+    glBindBuffer(GL_UNIFORM_BUFFER,u_material_buffer);
+    glBufferData(GL_UNIFORM_BUFFER,sizeof(PhongMaterial), nullptr, GL_STATIC_DRAW);
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+    glBindBufferBase(GL_UNIFORM_BUFFER, 3, u_material_buffer);
+    //-------------------
+
+    xe::set_uniform1i(program, "diffuse_map", 0);
+    xe::set_uniform1i(program,"specular_map",1);
+    xe::set_uniform1i(program,"shininess_map",2);
+
     glClearColor(0.81f, 0.81f, 0.8f, 1.0f);
     glViewport(0, 0, w, h);
     glEnable(GL_DEPTH_TEST);
@@ -84,20 +135,6 @@ void SimpleShapeApplication::init() {
     glFrontFace(GL_CCW);
     glCullFace(GL_BACK);
     glUseProgram(program);
-
-    //Teksturowanie-----------------------
-    xe::set_uniform1i(program, "diffuse_map", 0);
-    //-----------------------------------
-    auto material = new PhongMaterial();
-
-    material->Kd = glm::vec3(1.0, 0.0, 0.0);
-    material->Kd_map = 0;
-    material->Ks = glm::vec3(0.05, 0.05, 0.05);
-    material->Ks_map = 0;
-    material->Ns = 1000.0f;
-    material->Ns_map = 0;
-
-    quad_->set_material(material);
 
 }
 
@@ -120,14 +157,28 @@ void SimpleShapeApplication::frame() {
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
     light_.position_in_vs = camera()->view() * light_.position;
-
     glBindBuffer(GL_UNIFORM_BUFFER, u_light_buffer);
     glBufferSubData(GL_UNIFORM_BUFFER, 0, 16 * sizeof(float), &light_.position_in_vs[0]);
-    //glBufferSubData(GL_UNIFORM_BUFFER, 0, 4 * sizeof(float), &light_.ambient[0]);
-    //glBufferSubData(GL_UNIFORM_BUFFER, 4 * sizeof(float), 4 * sizeof(float), &light_position_in_vs[0] );
-    //glBufferSubData(GL_UNIFORM_BUFFER, 8 * sizeof(float), 4 * sizeof(float), &light_.color[0] );
-    //glBufferSubData(GL_UNIFORM_BUFFER, 12 * sizeof(float), 4 * sizeof(float), &light_.a[0] );
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+    glBindBuffer(GL_UNIFORM_BUFFER, u_material_buffer);
+    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(PhongMaterial), quad_->material());
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+
+    auto material = quad_->material();
+    if(material->Kd_map>0) {
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, material->Kd_map);
+    }
+
+    if(material->Ks_map>0) {
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, material->Ks_map);
+    }
+    if(material->Ns_map>0) {
+        glActiveTexture(GL_TEXTURE2);
+        glBindTexture(GL_TEXTURE_2D, material->Ns_map);
+    }
 
     quad_->draw();
 }

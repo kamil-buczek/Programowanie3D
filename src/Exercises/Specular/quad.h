@@ -23,13 +23,14 @@ public:
 
     PhongMaterial *material_; //Specular
 
-    void set_material(PhongMaterial *material) { material_ = material; }
+    void set_material(PhongMaterial *material) { material_ = material; } //setter
+    PhongMaterial *material() { return material_; } //getter
 
 private:
     GLuint vao_;
     GLuint buffer_[2];
     //Teksturowanie--------
-    GLuint diffuse_texture_;
+    //GLuint diffuse_texture_;
 
     //---------------------
 };
