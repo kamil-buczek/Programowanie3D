@@ -6,4 +6,4 @@ add_library(${PROJECT_NAME}
         application.h
         utils.cpp
         utils.h
-        )
+        stb_image.cpp)

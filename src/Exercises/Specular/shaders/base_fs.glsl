@@ -10,18 +10,29 @@ layout(std140) uniform Modifiers {
 };
 
 layout(std140) uniform Light {
-    vec3 ambient;
     vec3 position_in_vs;
     vec3 color;
     vec3 a;
+    vec3 ambient;
 } light;
+
+layout(std140) uniform Material {
+    vec3 Kd;
+    uint Kd_map;
+    vec3 Ks;
+    uint Ks_map;
+    float Ns;
+    uint Ns_map;
+} material;
 
 layout(location=0) out vec4 vFragColor;
 uniform sampler2D color;
 uniform sampler2D diffuse_map;
+uniform sampler2D specular_map;
+uniform sampler2D shininess_map;
 
-vec3 specular_color = vec3(1.0, 1.0, 1.0);
-float shininess = 500.0;
+//vec3 specular_color = vec3(1.0, 1.0, 1.0);
+//float shininess = 500.0;
 
 void main() {
 
@@ -32,15 +43,40 @@ void main() {
     float r = length(light_vector);
     light_vector/=r;
 
-    vec4 diffuse_color = texture(diffuse_map, v_vertex_texture_coordinates);
+    //vec4 diffuse_color = texture(diffuse_map, v_vertex_texture_coordinates);
 
     float M_PI = 3.1415926;
-    diffuse_color.rgb/=M_PI;
+
 
 
     //if (!gl_FrontFacing) {
     //    normal = -normal;
     //}
+
+    vec4 diffuse_color;
+    if (material.Kd_map>0) {
+        diffuse_color.a = texture(diffuse_map, v_vertex_texture_coordinates).a;
+        diffuse_color.rgb = texture(diffuse_map, v_vertex_texture_coordinates).rgb*material.Kd;
+    } else {
+        diffuse_color.a = 1;
+        diffuse_color.rgb = material.Kd;
+    }
+    diffuse_color.rgb/=M_PI; // jak dam przed ifa to czerwień jest jaśniejsza
+
+
+    vec3 specular_color;
+    if (material.Ks_map>0) {
+        specular_color = texture(specular_map,v_vertex_texture_coordinates).rgb*material.Ks;
+    } else {
+        specular_color = material.Ks;
+    }
+
+    float shininess;
+    if (material.Ns_map>0) {
+        shininess = texture(shininess_map, v_vertex_texture_coordinates).r*material.Ns;
+    } else {
+        shininess = material.Ns;
+    }
 
 
     float attenuation = 1.0/(light.a[0]+light.a[1]*r+light.a[2]*r*r);
@@ -59,6 +95,6 @@ void main() {
     vFragColor.rgb = diffuse_color.rgb;
     //vFragColor.rgb = diffuse_color.rgb*light.ambient.rgb;
     vFragColor.rgb += light_in * diffuse_color.rgb * light.color;
-    vFragColor.rgb += light_in*light.color*specular;
+    vFragColor.rgb += light_in * specular*specular_color * light.color;
 
 }

@@ -8,6 +8,7 @@
 #include "Application/utils.h"
 #include "glad/glad.h"
 #include "camera.h"
+#include "phong_material.h"
 
 
 class Quad  {
@@ -20,6 +21,11 @@ public:
 
     void operator=(Quad&& rhs) = delete;
     Quad(Quad&& rhs) = delete;
+
+    PhongMaterial *material_;
+    void set_material(PhongMaterial *material) { material_ = material; } //setter
+    PhongMaterial *material() { return material_; } //getter
+
 
 private:
     GLuint vao_;

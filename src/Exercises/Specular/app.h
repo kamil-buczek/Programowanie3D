@@ -53,13 +53,15 @@ private:
     GLuint vao_;
     GLuint u_pvm_buffer_;
     GLuint u_light_buffer;
+    GLuint u_material_buffer;
     CameraControler *controler_;
 
     struct Light {
-        glm::vec4 ambient;
         glm::vec4 position;
+        glm::vec4 position_in_vs;
         glm::vec4 color;
         glm::vec4 a;
+        glm::vec4 ambient;
     }light_;
 
 };

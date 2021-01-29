@@ -6,6 +6,9 @@
 #include <vector>
 #include <tuple>
 #include <glm/gtx/string_cast.hpp>
+#include "Application/utils.cpp"
+
+
 
 
 void SimpleShapeApplication::init() {
@@ -14,19 +17,12 @@ void SimpleShapeApplication::init() {
                                       std::string(PROJECT_DIR) + "/shaders/base_fs.glsl");
 
     //PVM--------------------------------------------------------------------------------------------------------------
-    auto u_transformations_index = glGetUniformBlockIndex(program, "Transformations");
-    if (u_transformations_index == GL_INVALID_INDEX) {
-        std::cout << "Cannot find Transformations uniform block in program" << std::endl;
-    } else{
-        glUniformBlockBinding(program, u_transformations_index, 1);
-    }
+    xe::utils::set_uniform_block_binding(program, "Transformations", 1);
+
     //Oswietlenie------------------
-    auto u_light_index = glGetUniformBlockIndex(program, "Light");
-    if (u_light_index == GL_INVALID_INDEX){
-        std::cout<< "Cannot find Light uniform block in program" << std::endl;
-    }else{
-        glUniformBlockBinding(program, u_light_index, 2);
-    }
+    xe::utils::set_uniform_block_binding(program, "Light", 2);
+
+    xe::utils::set_uniform_block_binding(program, "Material", 3);
 
     //-----------------------------------------------------------------------------------------------------------------
     if (!program) {
@@ -94,20 +90,60 @@ void SimpleShapeApplication::init() {
     glUseProgram(program);
 
     //Teksturowanie-----------------------
-    auto  u_diffuse_map_location = glGetUniformLocation(program,"diffuse_map");
-    if(u_diffuse_map_location==-1) {
-        std::cerr<<"Cannot find uniform diffuse_map\n";
-    } else {
-        glUniform1ui(u_diffuse_map_location,0);
-    }
+   // auto  u_diffuse_map_location = glGetUniformLocation(program,"diffuse_map");
+   // if(u_diffuse_map_location==-1) {
+   //     std::cerr<<"Cannot find uniform diffuse_map\n";
+   // } else {
+   //     glUniform1ui(u_diffuse_map_location,0);
+   // }
     //-----------------------------------
+
+    xe::utils::set_uniform1i(program,"diffuse_map",0);
+
+
+    auto material = new PhongMaterial();
+    material->Kd = glm::vec3(1.0, 0.0, 0.0);
+    material->Kd_map = 0;
+    material->Ks = glm::vec3(0.05, 0.05, 0.05);
+    material->Ks_map = 0;
+    material->Ns = 1000.0f;
+    material->Ns_map = 0;
+    quad_->set_material(material);
+
+    glGenBuffers(1, &u_material_buffer);
+    glBindBuffer(GL_UNIFORM_BUFFER,u_material_buffer);
+    glBufferData(GL_UNIFORM_BUFFER,sizeof(PhongMaterial), nullptr, GL_STATIC_DRAW);
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
+    glBindBufferBase(GL_UNIFORM_BUFFER, 3, u_material_buffer);
+
+
+    GLuint diffuse_texture;
+    glGenTextures(1,&diffuse_texture);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, diffuse_texture);
+    xe::utils::load_texture(std::string(PROJECT_DIR) + "/Textures/plastic.png");
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    material->Kd = glm::vec3(1.0, 1.0, 1.0);
+    material->Kd_map = diffuse_texture;
+
+    xe::utils::set_uniform1i(program,"specular_map",1);
+    xe::utils::set_uniform1i(program,"shininess_map",2);
+
+    GLuint shininess_texture;
+    glGenTextures(1,&shininess_texture);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, shininess_texture);
+    xe::utils::load_texture(std::string(PROJECT_DIR) + "/Textures/shininess.png");
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    material->Ns = 1000.0f;
+    material->Ns_map = shininess_texture;
 
 }
 
 void SimpleShapeApplication::frame() {
-    //glm::mat4 P_ = camera_->projection();
-    //glm::mat4 V_ = camera_->view();
-    //auto PVM = P_*V_;
+
     glBindBuffer(GL_UNIFORM_BUFFER, u_pvm_buffer_);
     auto P = camera()->projection();
     auto VM = camera()->view();
@@ -123,18 +159,36 @@ void SimpleShapeApplication::frame() {
                         3 * sizeof(GLfloat), &N[col]);
     }
     auto light_position_in_vs = camera()->view() * light_.position;
-    //std::cout<<glm::to_string(light_.color)<<std::endl;
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
+    light_.position_in_vs = camera()->view() * light_.position;
     glBindBuffer(GL_UNIFORM_BUFFER, u_light_buffer);
-    glBufferSubData(GL_UNIFORM_BUFFER, 0, 4 * sizeof(float), &light_.ambient[0]);
-    glBufferSubData(GL_UNIFORM_BUFFER, 4 * sizeof(float), 4 * sizeof(float), &light_position_in_vs[0] );
-    glBufferSubData(GL_UNIFORM_BUFFER, 8 * sizeof(float), 4 * sizeof(float), &light_.color[0] );
-    glBufferSubData(GL_UNIFORM_BUFFER, 12 * sizeof(float), 4 * sizeof(float), &light_.a[0] );
+    glBufferSubData(GL_UNIFORM_BUFFER, 0, 16 * sizeof(float), &light_.position_in_vs[0]);
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
+    glBindBuffer(GL_UNIFORM_BUFFER, u_material_buffer);
+    glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(PhongMaterial), quad_->material());
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
     //pyramid_->draw();
+
+
+
+    auto material = quad_->material();
+    if(material->Kd_map>0) {
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, material->Kd_map);
+    }
+
+    if(material->Ks_map>0) {
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, material->Ks_map);
+    }
+    if(material->Ns_map>0) {
+        glActiveTexture(GL_TEXTURE2);
+        glBindTexture(GL_TEXTURE_2D, material->Ns_map);
+    }
+
     quad_->draw();
 }
 

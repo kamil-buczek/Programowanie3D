@@ -60,23 +60,6 @@ Quad::Quad() {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffer_[0]); //dodane w zadaniu 3
     glBindVertexArray(0);
 
-    //Teksturowanie---------------------------------
-    auto texture_filename = std::string(PROJECT_DIR) + "/Textures/silver.png";
-    int width, height, n_channels;
-    uint8_t  *data = stbi_load(texture_filename.c_str(), &width, &height, &n_channels, 0);
-
-    if(data == nullptr)
-        std::cerr<<"Pointer *data points to nullptr"<<std::endl;
-    else
-        std::cout<<"Width of teksture is: "<<width<<"\nHeight of teksture is: "<<height<<"\nn_channels: "<<n_channels<<std::endl;
-
-    glGenTextures(1, &diffuse_texture_);
-    glBindTexture(GL_TEXTURE_2D, diffuse_texture_);
-    glTexImage2D(GL_TEXTURE_2D,0,GL_RGB, width, height,0, GL_RGBA, GL_UNSIGNED_BYTE,data);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER,GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,GL_NEAREST);
-    glBindTexture(GL_TEXTURE_2D, 0);
-    //----------------------------------------------
 }
 
 Quad::~Quad() {
@@ -86,9 +69,6 @@ Quad::~Quad() {
 }
 
 void Quad::draw() {
-    //Teksturowanie---------------
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D,diffuse_texture_);
     //-----------------------------------------
     glBindVertexArray(vao_);
     glDrawElements(GL_TRIANGLES, 18, GL_UNSIGNED_SHORT, reinterpret_cast<GLvoid*>(0));
