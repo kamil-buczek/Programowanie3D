@@ -17,10 +17,10 @@ Quad::Quad() {
     //Oświetlenie -- reprezentacja kwadratu
     std::vector<GLfloat> kwadrat = {
                                                     //Wektory normalne  dodanie w zadaniu z oświetleniem
-            -1.0f, 1.0f, 0.0f, 0.8090f, 0.5000f,    0.0f, 0.0f, 1.0f, //0
-            1.0f, 1.0f, 0.0f, 0.5000f, 0.8090f,     0.0f, 0.0f, 1.0f, //1
-            -1.0f, -1.0f, 0.0f, 0.5000f, 0.1910f,   0.0f, 0.0f, 1.0f, //2
-            1.0f, -1.0f, 0.0f, 0.1910f, 0.5000f,    0.0f, 0.0f, 1.0f, //3
+            -1.0f, 1.0f, 0.0f, 0.0f, 0.0f,    0.0f, 0.0f, 1.0f, //0
+            1.0f, 1.0f, 0.0f, 0.0f, 1.0f,     0.0f, 0.0f, 1.0f, //1
+            -1.0f, -1.0f, 0.0f, 1.0f, 0.0f,   0.0f, 0.0f, 1.0f, //2
+            1.0f, -1.0f, 0.0f, 1.0f, 1.0f,    0.0f, 0.0f, 1.0f, //3
     };
 
     //Bufor indeksów
