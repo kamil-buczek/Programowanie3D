@@ -57,7 +57,7 @@ void SimpleShapeApplication::init() {
 
     camera_->perspective(glm::pi<float>()/2.0,(float)w/(float)h,0.1f,200.0f);
     glm::mat4 P_ = camera_->projection();
-    camera_->look_at(glm::vec3{0.0,0.0,10.0},glm::vec3{0.0f,0.0f,0.0f},glm::vec3{1.0,0.0,0.0});
+    camera_->look_at(glm::vec3{0.0,0.0,-10.0},glm::vec3{0.0f,0.0f,0.0f},glm::vec3{1.0,0.0,0.0});
     glm::mat4 V_ = camera_->view();
     glm::mat4 M(1.0f);
 
