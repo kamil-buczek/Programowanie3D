@@ -143,7 +143,9 @@ void SimpleShapeApplication::init() {
     //---------------------------
 
 
-
+    glBindBuffer(GL_UNIFORM_BUFFER, u_pvm_buffer_);
+    glBufferData(GL_UNIFORM_BUFFER,sizeof(glm::mat4), nullptr, GL_STATIC_DRAW);
+    glBindBuffer(GL_UNIFORM_BUFFER, 0);
     glBindBufferBase(GL_UNIFORM_BUFFER, 1, u_pvm_buffer_);
 
     glClearColor(0.81f, 0.81f, 0.8f, 1.0f);
@@ -163,13 +165,12 @@ void SimpleShapeApplication::frame() {
     glm::mat4 V_ = camera_->view();
     auto PVM = P_*V_;
     glBindBuffer(GL_UNIFORM_BUFFER, u_pvm_buffer_);
-    glBufferData(GL_UNIFORM_BUFFER,sizeof(glm::mat4), nullptr, GL_STATIC_DRAW);
+    //glBufferData(GL_UNIFORM_BUFFER,sizeof(glm::mat4), nullptr, GL_STATIC_DRAW);
     glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(glm::mat4), &PVM[0]);
     glBindBuffer(GL_UNIFORM_BUFFER, 0);
-    //glBindBufferBase(GL_UNIFORM_BUFFER, 1, u_pvm_buffer_);
+
 
     glBindVertexArray(vao_);
-    //glDrawArrays(GL_TRIANGLES, 0, 9);
     glDrawElements(GL_TRIANGLES, 18, GL_UNSIGNED_SHORT, reinterpret_cast<GLvoid*>(0));
     glBindVertexArray(0);
 }
